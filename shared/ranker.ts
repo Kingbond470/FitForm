@@ -1,7 +1,7 @@
 // Deterministic outfit ranker — NOT an LLM. Implements outfits-ranker-contract.md.
 // Pure functions, testable, reproducible. Shared so server + tests use same logic.
 
-import type { StyleProfile, WardrobeItem, Occasion } from './types';
+import type { StyleProfile, WardrobeItem, Occasion, RuleCategory } from './types';
 
 export interface RankerWeights {
   color_harmony: number;
@@ -157,7 +157,59 @@ function repeatPenalty(outfit: WardrobeItem[], recent: Set<string>): number {
 // --- helpers ---
 const NEUTRALS = new Set(['black', 'white', 'grey', 'gray', 'navy', 'beige', 'tan', 'cream', 'charcoal']);
 const isNeutral = (c?: string) => !!c && NEUTRALS.has(c.toLowerCase());
-function matchContrast(_i: WardrobeItem, _target: string): number { return 0.7; } // TODO: hex->contrast map (Wk0 color taxonomy)
-function itemMatchesRuleTarget(_i: WardrobeItem, _target: string, _cat: string): number | boolean { return false; } // TODO: rule->item matcher
+
+// How well an item's value-contrast matches the person's contrast level.
+// People read best in items whose light/dark extremeness suits their own
+// contrast: high-contrast suits stark (near black/white), low suits muted.
+function matchContrast(i: WardrobeItem, target: string): number {
+  const L = hexLuminance(i.color_hex);          // 0 (black) .. 1 (white)
+  const extreme = Math.abs(L - 0.5) * 2;         // 0 (mid) .. 1 (pure black/white)
+  const want = target === 'high' ? 1 : target === 'low' ? 0 : 0.5;
+  return clamp01(1 - Math.abs(extreme - want));
+}
+
+// Relative luminance from sRGB hex (#RRGGBB). Falls back to mid on bad input.
+function hexLuminance(hex?: string): number {
+  if (!hex || !/^#?[0-9a-fA-F]{6}$/.test(hex)) return 0.5;
+  const h = hex.replace('#', '');
+  const lin = (c: number) => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4; };
+  const r = lin(parseInt(h.slice(0, 2), 16));
+  const g = lin(parseInt(h.slice(2, 4), 16));
+  const b = lin(parseInt(h.slice(4, 6), 16));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+// Map a free-text profile rule target onto a structured item field.
+// v1 items carry color + pattern metadata only, so fit/proportion rules
+// cannot be matched against items yet -> return false (item fit tags = v2).
+const COLOR_FAMILIES: Record<string, string[]> = {
+  earth: ['brown', 'olive', 'tan', 'beige', 'rust', 'camel', 'khaki', 'mustard', 'terracotta', 'cream'],
+  warm: ['brown', 'olive', 'tan', 'rust', 'camel', 'mustard', 'orange', 'red'],
+  cool: ['navy', 'blue', 'grey', 'gray', 'teal', 'charcoal'],
+  bright: ['red', 'orange', 'yellow', 'pink', 'green', 'purple'],
+  neutral: [...NEUTRALS],
+};
+function itemMatchesRuleTarget(i: WardrobeItem, target: string, cat: RuleCategory): boolean {
+  const t = target.toLowerCase();
+  if (cat === 'color') {
+    const color = (i.color_primary ?? '').toLowerCase();
+    if (color && t.includes(color)) return true;                 // direct color named
+    for (const [fam, members] of Object.entries(COLOR_FAMILIES)) // family keyword
+      if (t.includes(fam) && members.includes(color)) return true;
+    return false;
+  }
+  if (cat === 'pattern') {
+    const p = (i.pattern ?? '').toLowerCase();
+    if (/busy|bold|loud|large/.test(t)) return p !== 'solid' && p !== 'textured';
+    if (/strip/.test(t)) return p === 'striped';
+    if (/check|plaid/.test(t)) return p === 'checked';
+    if (/print/.test(t)) return p === 'printed';
+    if (/solid|plain|minimal/.test(t)) return p === 'solid';
+    return false;
+  }
+  // fit | proportion: no item-level fit metadata in v1 schema.
+  return false;
+}
+
 function spread(v: number[]): number { return Math.max(...v) - Math.min(...v); }
 function clamp01(n: number): number { return Math.max(0, Math.min(1, n)); }
