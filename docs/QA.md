@@ -1,0 +1,52 @@
+# QA — FitForm v1
+
+**Owner:** QA · **Status:** Test planning
+
+---
+
+## Acceptance criteria (from PRD requirements)
+
+### R1 — Scan → style profile
+- [ ] Usable face+body photo → verdict in <~15s with profile + ≥3 specific do/don't rules.
+- [ ] Low-quality/partial photo → specific retake prompt (NOT generic error, NOT fabricated result).
+- [ ] Negative: never appearance-shaming or medicalized content. Constructive/styling only.
+
+### R2 — Shareable verdict card
+- [ ] Completed verdict → tap Share → single branded image to native share sheet.
+- [ ] Card renders identically shared vs screenshotted; branding not trivially croppable.
+
+### R3 — Lean wardrobe add
+- [ ] Garment photo → bg removed + type/color auto-tagged within few seconds.
+- [ ] Edit a tag in ≤1 tap.
+- [ ] Adding 5 items materially less effort than incumbents; <~30s/item end-to-end.
+
+### R4 — Personalized outfit combinations
+- [ ] ≥5 items spanning ≥2 categories → ≥3 distinct non-repetitive combos respecting profile rules.
+- [ ] Negative: engine does NOT surface same 1–2 items in every suggestion (anti-incumbent).
+
+### R5 — Paywall
+- [ ] Completed free verdict → attempt outfits → clear paywall w/ transparent free-vs-paid BEFORE block.
+- [ ] Purchase, restore, trial states function on iOS (+ Android).
+
+### R6 — Analytics
+- [ ] Each funnel step emits tracked event: install → scan start → scan complete → share → add item → first outfit → paywall view → purchase.
+- [ ] Events carry properties needed to compute success metrics.
+
+## Edge / negative cases
+- Partial body, face-only, blurry, low-light, multiple people, occluded.
+- Verdict JSON malformed → schema reject + retry, never render garbage.
+- Garment: busy background, multiple garments in frame, non-clothing.
+- Combos with <5 items or single category → correct gating, no broken output.
+- Paywall: purchase interrupted, restore after reinstall, trial expiry.
+- Offline / slow network during scan upload.
+
+## Cross-platform matrix
+- iOS: launch target. Full pass.
+- Android (fast-follow): low-end camera quality, device fragmentation, perf on vision upload+render, share-sheet variants, IAP store config.
+
+## Safety test (with Design/Legal)
+- Red-team verdict for shaming/medical/harmful output across diverse inputs.
+- Biometric: confirm raw auto-purge <24h actually fires; deletion verifiable.
+
+## Metrics instrumentation check
+- Verify every Success Metric is computable from emitted events before launch.

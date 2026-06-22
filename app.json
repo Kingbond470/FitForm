@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "FitForm",
+    "slug": "fitform",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "ios": { "supportsTablet": false, "bundleIdentifier": "com.fitform.app" },
+    "android": { "package": "com.fitform.app" },
+    "plugins": ["expo-camera"],
+    "extra": {
+      "supabaseUrl": "SET_IN_ENV",
+      "supabaseAnonKey": "SET_IN_ENV"
+    }
+  }
+}
