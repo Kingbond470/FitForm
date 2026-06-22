@@ -8,7 +8,10 @@
 - **Client:** React Native + Expo. iOS-first launch, Android fast-follow (shared codebase).
 - **Server:** Supabase Edge Functions (Deno) / Node API. All vision behind server — no client-direct model calls (cost, key safety, prompt control).
 - **Data:** Supabase Postgres + Storage + Auth (RLS).
-- **Vision verdict:** GPT-4o-class multimodal.
+- **Vision verdict:** provider-agnostic (`_shared/vision.ts`, `VISION_PROVIDER`).
+  Default **Google Gemini 2.0 Flash** (free tier, no billing); OpenAI gpt-4o
+  retained behind the flag. Swap = config, not rewrite. Chosen because OpenAI
+  account had no quota and free-launch wants $0 vision for validation.
 - **Bg-removal + tag:** hosted (Photoroom / remove.bg) — buy, not build.
 - **IAP/paywall:** RevenueCat (handles iOS + Android stores).
 

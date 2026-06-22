@@ -6,7 +6,7 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
 import { encodeBase64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { ScanResponse } from '../../../shared/types.ts';
-import { getVerdict, MODEL_VERSION, RETAKE_MESSAGES } from '../_shared/verdict.ts';
+import { getVerdict, modelVersion, RETAKE_MESSAGES } from '../_shared/verdict.ts';
 
 const MIN_BYTES = 3000; // obvious-junk guard before spending a model call
 
@@ -35,10 +35,10 @@ serve(async (req) => {
   if (body.byteLength < MIN_BYTES) return json({ status: 'retake', reason_code: 'no_full_body', message: RETAKE_MESSAGES.no_full_body });
 
   // --- vision LLM (structured), validate, one retry on invalid ---
-  const faceUrl = dataUrl(face);
-  const bodyUrl = dataUrl(body);
-  let result = await getVerdict(faceUrl, bodyUrl);
-  if (result.kind === 'invalid') result = await getVerdict(faceUrl, bodyUrl);
+  const faceB64 = encodeBase64(face);
+  const bodyB64 = encodeBase64(body);
+  let result = await getVerdict(faceB64, bodyB64);
+  if (result.kind === 'invalid') result = await getVerdict(faceB64, bodyB64);
 
   if (result.kind === 'retake') {
     return json({ status: 'retake', reason_code: result.reason, message: RETAKE_MESSAGES[result.reason] });
@@ -58,17 +58,14 @@ serve(async (req) => {
     coloring: profile.coloring,
     rules: profile.rules,
     headline: profile.headline,
-    model_version: MODEL_VERSION,
+    model_version: modelVersion(),
   });
   if (error) return json({ status: 'error', retryable: true } as ScanResponse, 500);
 
-  return json({ status: 'ok', model_version: MODEL_VERSION, profile } as ScanResponse);
+  return json({ status: 'ok', model_version: modelVersion(), profile } as ScanResponse);
 });
 
 // --- helpers ---
-function dataUrl(bytes: Uint8Array): string {
-  return `data:image/jpeg;base64,${encodeBase64(bytes)}`;
-}
 function adminClient() {
   return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 }

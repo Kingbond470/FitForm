@@ -34,7 +34,7 @@ serve(async (req) => {
   }
 
   // --- auto-tag the cutout ---
-  const tagged = await getTags(`data:image/png;base64,${encodeBase64(cutout)}`);
+  const tagged = await getTags(encodeBase64(cutout));
   if (tagged.kind === 'reject') {
     return json({ status: 'error', reason_code: tagged.reason, message: REJECT_MESSAGES[tagged.reason] });
   }
