@@ -46,5 +46,14 @@ npm run ios                 # or: npm run android
 Wk0 spike ([docs/spikes/wk0-spike.md](docs/spikes/wk0-spike.md)) must pass before Wk1 build:
 auto-tag <30s/item + RN native edge parity.
 
+## Live environment
+Supabase project **fitform** (`snuajzyiktqnzqsfdjvr`, ap-south-1) — provisioned via CLI.
+- Migrations applied (tables + `wardrobe` bucket). Anonymous sign-ins enabled.
+- All 3 Edge Functions deployed: `scan`, `garment`, `outfits`.
+- Verified: anon sign-in → `/outfits` (insufficient) and `/scan` cheap-gate both respond.
+- Pending secrets (set via `supabase secrets set`): `OPENAI_API_KEY`, `PHOTOROOM_API_KEY`
+  — until set, scan's model step + garment fail; ranker/outfits work.
+- Client `.env` (gitignored) holds the project URL + anon key.
+
 ## Status
-Scaffold + contracts + ranker (impl) done. Vision/vendor calls = stubs marked `TODO`, pending Wk0 spike + Wk1.
+Backend live on Supabase. Vision/vendor calls need the two API keys set as function secrets.
