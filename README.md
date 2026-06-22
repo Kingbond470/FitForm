@@ -28,6 +28,10 @@ App.tsx                     v1 flow wiring
 - No catalog-whole-closet wall. No repeat-item suggestions.
 
 ## Setup
+Supabase project prerequisites: enable **Anonymous sign-ins**
+(Auth → Providers → Anonymous), apply migrations (creates the `wardrobe`
+storage bucket), and set Edge Function secrets (`OPENAI_API_KEY`,
+`PHOTOROOM_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY`).
 ```bash
 cp .env.example .env        # fill keys
 npm install

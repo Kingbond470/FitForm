@@ -5,9 +5,22 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "platforms": ["ios", "android"],
-    "ios": { "supportsTablet": false, "bundleIdentifier": "com.fitform.app" },
-    "android": { "package": "com.fitform.app" },
-    "plugins": ["expo-camera"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.fitform.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "FitForm uses the camera to scan your face and body so it can tell you what suits you.",
+        "NSPhotoLibraryUsageDescription": "FitForm uses your photos to add garments to your wardrobe."
+      }
+    },
+    "android": {
+      "package": "com.fitform.app",
+      "permissions": ["CAMERA", "READ_MEDIA_IMAGES"]
+    },
+    "plugins": [
+      ["expo-camera", { "cameraPermission": "FitForm uses the camera to scan your face and body." }],
+      ["expo-image-picker", { "photosPermission": "FitForm uses your photos to add garments to your wardrobe." }]
+    ],
     "extra": {
       "supabaseUrl": "SET_IN_ENV",
       "supabaseAnonKey": "SET_IN_ENV"
