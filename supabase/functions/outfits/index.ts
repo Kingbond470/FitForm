@@ -3,11 +3,18 @@
 import { serve } from 'https://deno.land/std/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { rankOutfits } from '../../../shared/ranker.ts';
+import { canUse } from '../../../shared/entitlements.ts';
 import type { OutfitsResponse, Occasion, StyleProfile, WardrobeItem } from '../../../shared/types.ts';
 
 serve(async (req) => {
   const { occasion, userId } = await readBody(req);
   const supa = adminClient();
+
+  // Entitlement seam — open during FREE_LAUNCH; paywall returns by flipping the
+  // flag in shared/entitlements.ts (wire to RevenueCat status then).
+  if (!canUse('outfits')) {
+    return json({ status: 'insufficient', need: { min_items: 0, min_categories: 0 }, have: { items: 0, categories: 0 } } as OutfitsResponse, 402);
+  }
 
   // 1. LOAD wardrobe + latest profile.
   const [{ data: items }, { data: profileRow }] = await Promise.all([

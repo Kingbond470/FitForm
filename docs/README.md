@@ -19,9 +19,10 @@ Source of truth: [PRD-FitForm-v1.md](../PRD-FitForm-v1.md)
 | `/outfits` ranker contract | [contracts/outfits-ranker-contract.md](contracts/outfits-ranker-contract.md) | Draft v1 |
 
 ## Locked decisions (quick ref)
-1. **Verdict-led wedge** (+ blurred wardrobe teaser P0)
+1. **Verdict-led wedge** (+ wardrobe teaser P0)
 2. **RN cross-platform codebase, staged launch** (iOS-first → Android FF)
 3. **Raw photo never persisted** (in-memory only; supersedes transient-bucket), permanent profile JSON
+4. **FREE LAUNCH** — no paywall in v1; everything open. Reversible via `shared/entitlements.ts` (`FREE_LAUNCH` flag). Monetization deferred.
 
 ## Current phase
 Execution. Wk0 spike spec + all 3 API contracts drafted. Next: run Wk0 spike, then scaffold repo (RN+Expo client, Supabase schema, Edge Function stubs).

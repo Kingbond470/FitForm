@@ -10,7 +10,7 @@ Personalized combos (R4). **Deterministic rule-based scorer — NOT an LLM call.
 ```
 POST /outfits
 Body: { occasion?: "casual"|"work"|"date" }   // occasion = P1
-Auth: required (paid gate)
+Auth: required. Entitlement check `canUse('outfits')` — OPEN during FREE_LAUNCH (v1), returns 402 when monetization flips on.
 ```
 
 ## Flow

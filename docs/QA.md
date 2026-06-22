@@ -24,9 +24,11 @@
 - [ ] ≥5 items spanning ≥2 categories → ≥3 distinct non-repetitive combos respecting profile rules.
 - [ ] Negative: engine does NOT surface same 1–2 items in every suggestion (anti-incumbent).
 
-### R5 — Paywall
-- [ ] Completed free verdict → attempt outfits → clear paywall w/ transparent free-vs-paid BEFORE block.
-- [ ] Purchase, restore, trial states function on iOS (+ Android).
+### R5 — Paywall (DEFERRED — free launch)
+- v1 ships free; no paywall. Re-instate these when monetization flips on:
+- [ ] (deferred) Completed verdict → attempt outfits → clear paywall before block.
+- [ ] (deferred) Purchase, restore, trial states function on iOS (+ Android).
+- [ ] FREE-LAUNCH check: `/outfits` accessible without any entitlement; no paywall surfaces anywhere.
 
 ### R6 — Analytics
 - [ ] Each funnel step emits tracked event: install → scan start → scan complete → share → add item → first outfit → paywall view → purchase.

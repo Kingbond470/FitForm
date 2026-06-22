@@ -5,7 +5,9 @@ import ScanScreen from '@/screens/ScanScreen';
 import VerdictScreen from '@/screens/VerdictScreen';
 import type { StyleProfile } from '@shared/types';
 
-type Route = 'scan' | 'verdict' | 'paywall';
+// v1 launches FREE — no paywall in the flow. Verdict -> Wardrobe -> Outfits,
+// all open. Monetization re-enables via shared/entitlements.ts (FREE_LAUNCH).
+type Route = 'scan' | 'verdict' | 'wardrobe';
 
 export default function App() {
   const [route, setRoute] = useState<Route>('scan');
@@ -17,9 +19,9 @@ export default function App() {
         <ScanScreen onVerdict={(r) => { setProfile(r.profile); setRoute('verdict'); }} />
       )}
       {route === 'verdict' && profile && (
-        <VerdictScreen profile={profile} onUnlockWardrobe={() => setRoute('paywall')} />
+        <VerdictScreen profile={profile} onUnlockWardrobe={() => setRoute('wardrobe')} />
       )}
-      {/* TODO: PaywallScreen (RevenueCat) -> WardrobeScreen -> OutfitsScreen */}
+      {/* TODO: WardrobeScreen (add items) -> OutfitsScreen (combos). No paywall. */}
     </SafeAreaView>
   );
 }

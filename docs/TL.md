@@ -48,7 +48,7 @@ CLIENT (RN+Expo) --HTTPS--> SERVER (Edge Fns)
 | 3-4 | Quality gate / retake flow (P0 edge) |
 | 4-5 | /garment add + wardrobe UI |
 | 5-6 | /outfits ranker + combo browse + blurred teaser |
-| 6 | Paywall (RevenueCat) + gating |
+| 6 | ~~Paywall~~ DEFERRED (free launch). Entitlement seam open via shared/entitlements.ts |
 | 1-6 | Analytics funnel (continuous) |
 | 7 | iOS launch · Android fast-follow |
 

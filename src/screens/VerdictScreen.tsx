@@ -1,5 +1,6 @@
 // Verdict card — the viral artifact. Rating-card format, branding baked into export.
-// Share render == screenshot render. Blurred wardrobe teaser (P0) seeds paywall same session.
+// Share render == screenshot render. Wardrobe teaser (P0) pulls into the payoff —
+// FREE during v1 launch (no paywall); see shared/entitlements.ts.
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import * as Sharing from 'expo-sharing';
@@ -34,10 +35,10 @@ export default function VerdictScreen({ profile, onUnlockWardrobe }: Props) {
         <Text style={styles.shareT}>Share</Text>
       </Pressable>
 
-      {/* BLURRED WARDROBE TEASER (P0) — desire before paywall. */}
+      {/* WARDROBE TEASER (P0) — pulls into the payoff. Free during v1 launch. */}
       <Pressable style={styles.teaser} onPress={onUnlockWardrobe}>
         <Text style={styles.teaserT}>Build outfits from your closet →</Text>
-        <Text style={styles.teaserSub}>Unlock combinations made for your look</Text>
+        <Text style={styles.teaserSub}>Combinations made for your look — free</Text>
       </Pressable>
     </ScrollView>
   );

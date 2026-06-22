@@ -7,7 +7,7 @@ Men 18–30, premium. See [PRD-FitForm-v1.md](PRD-FitForm-v1.md) + role docs in 
 - **Client:** React Native + Expo (iOS-first launch, Android fast-follow).
 - **Server:** Supabase Edge Functions (Deno) — all vision/ranking server-side.
 - **Data:** Supabase Postgres + Storage + Auth (RLS).
-- **Vision:** GPT-4o-class (verdict only). Bg-removal/tag: hosted (Photoroom). Paywall: RevenueCat.
+- **Vision:** GPT-4o-class (verdict only). Bg-removal/tag: hosted (Photoroom). Paywall: RevenueCat (dormant — v1 is **free**).
 
 ## Layout
 ```
