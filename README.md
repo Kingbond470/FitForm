@@ -50,10 +50,16 @@ auto-tag <30s/item + RN native edge parity.
 Supabase project **fitform** (`snuajzyiktqnzqsfdjvr`, ap-south-1) — provisioned via CLI.
 - Migrations applied (tables + `wardrobe` bucket). Anonymous sign-ins enabled.
 - All 3 Edge Functions deployed: `scan`, `garment`, `outfits`.
-- Verified: anon sign-in → `/outfits` (insufficient) and `/scan` cheap-gate both respond.
-- Pending secrets (set via `supabase secrets set`): `OPENAI_API_KEY`, `PHOTOROOM_API_KEY`
-  — until set, scan's model step + garment fail; ranker/outfits work.
-- Client `.env` (gitignored) holds the project URL + anon key.
+- Secrets set: `OPENAI_API_KEY`, `PHOTOROOM_API_KEY` (sandbox).
+- Verified live:
+  - anon sign-in ✓
+  - `/outfits` ranker ✓ (insufficient with no items)
+  - `/scan` cheap-gate ✓
+  - Photoroom bg-removal ✓ (direct 200 + RGBA cutout)
+  - `/scan` model step ✗ — OpenAI key valid but account `insufficient_quota`
+    (needs billing/credits). Same block hits `/garment` auto-tagging.
+- Client `.env` (gitignored) holds project URL + anon key.
 
 ## Status
-Backend live on Supabase. Vision/vendor calls need the two API keys set as function secrets.
+Backend live on Supabase; all plumbing verified. ONE blocker to full vision:
+add OpenAI billing/credits — https://platform.openai.com/settings/organization/billing
