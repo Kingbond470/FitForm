@@ -20,7 +20,7 @@ CLIENT (RN+Expo) --HTTPS--> SERVER (Edge Fns)
   wardrobe + combos             POST /outfits  -> deterministic ranker
   paywall (RevenueCat)          POST /feedback -> (P1) ranking signal
                                 |
-                          Postgres + Storage(transient raw) + Auth
+                          Postgres + Storage(cutouts only) + Auth
 ```
 
 ## Core rule
@@ -33,7 +33,7 @@ CLIENT (RN+Expo) --HTTPS--> SERVER (Edge Fns)
 - `outfit` — item_ids[], occasion, score, profile_version. Persisted for share/feedback.
 
 ## Pipelines
-**/scan:** quality gate (cheap CV: face/body detected, blur/light) FIRST → fail = retake code, no LLM call. Pass → vision LLM w/ strict JSON schema (structured output) → validate schema, retry once → persist profile. **Auto-purge raw img <24h** (transient bucket TTL).
+**/scan:** quality gate (cheap CV: face/body detected, blur/light) FIRST → fail = retake code, no LLM call. Pass → vision LLM w/ strict JSON schema (structured output) → validate schema, retry once → persist profile. **Raw images processed in-memory, NEVER persisted** (strongest privacy; supersedes earlier transient-bucket plan). Tradeoff: no server-side retry/debug of bad verdicts — re-scan instead.
 
 **/garment:** hosted bg-removal → cutout. Auto-tag category/color/formality. Store cutout (permanent) + tags. Return editable chips. <30s/item bar.
 
@@ -58,7 +58,7 @@ CLIENT (RN+Expo) --HTTPS--> SERVER (Edge Fns)
 | Verdict JSON inconsistent | structured-output mode + schema validate + retry; ranker reads JSON not prose |
 | Auto-tag misses <30s | Wk0 spike; fallback fewer auto-fields + more chips |
 | Multimodal cost/scan vs $30/yr | meter in spike; cache profile, never re-scan free |
-| Biometric legal | transient raw + consent + region gate before launch |
+| Biometric legal | raw never stored + consent + region gate before launch |
 | RN native edge parity | abstract camera/IAP/share from Wk0; iOS-first launch |
 
 ## Cross-platform ripple (from RN decision)

@@ -1,41 +1,66 @@
 // POST /garment — bg-removal + auto-tag. See docs/contracts/garment-contract.md
-// Flow: upload -> bg-removal (hosted) -> auto-tag -> store cutout+tags -> return editable chips.
-import { serve } from 'https://deno.land/std/http/server.ts';
+// Flow: auth -> bg-removal -> store cutout -> auto-tag -> persist -> return chips.
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { encodeBase64 } from 'https://deno.land/std@0.224.0/encoding/base64.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { GarmentResponse, WardrobeItem } from '../../../shared/types.ts';
+import { removeBackground, getTags, REJECT_MESSAGES } from '../_shared/garmentTag.ts';
+
+const BUCKET = 'wardrobe';
 
 serve(async (req) => {
-  const { image, userId } = await readMultipart(req);
+  if (req.method !== 'POST') return json({ status: 'error', reason_code: 'not_clothing', message: 'POST only' }, 405);
 
-  // 2. BG-REMOVAL — hosted vendor (Photoroom/remove.bg, Wk0 spike picks).
-  const cutout = await removeBackground(image); // TODO
-  if (!cutout) {
-    return json<GarmentResponse>({ status: 'error', reason_code: 'no_garment_detected', message: 'No garment found. Center one item in frame.' });
+  // --- auth ---
+  const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '');
+  const supa = adminClient();
+  const { data: auth } = await supa.auth.getUser(token);
+  const userId = auth?.user?.id;
+  if (!userId) return json({ status: 'error', reason_code: 'not_clothing', message: 'Unauthorized' }, 401);
+
+  // --- read image ---
+  let image: Uint8Array;
+  try {
+    const form = await req.formData();
+    image = new Uint8Array(await (form.get('garment_image') as File).arrayBuffer());
+  } catch {
+    return json({ status: 'error', reason_code: 'no_garment_detected', message: REJECT_MESSAGES.no_garment_detected }, 400);
   }
 
-  // 3. AUTO-TAG.
-  const tags = await autoTag(cutout); // TODO: vision/classifier -> category,subtype,color,formality,pattern
+  // --- bg-removal ---
+  const cutout = await removeBackground(image);
+  if (!cutout) {
+    return json({ status: 'error', reason_code: 'no_garment_detected', message: REJECT_MESSAGES.no_garment_detected });
+  }
 
-  // 4. STORE cutout (permanent) + tags.
-  const supa = adminClient();
-  const image_url = await storeCutout(supa, userId, cutout); // TODO
-  const { data } = await supa.from('wardrobe_item')
-    .insert({ user_id: userId, image_url, ...tags, tags_source: 'auto' })
+  // --- auto-tag the cutout ---
+  const tagged = await getTags(`data:image/png;base64,${encodeBase64(cutout)}`);
+  if (tagged.kind === 'reject') {
+    return json({ status: 'error', reason_code: tagged.reason, message: REJECT_MESSAGES[tagged.reason] });
+  }
+  if (tagged.kind !== 'tags') {
+    return json({ status: 'error', reason_code: 'no_garment_detected', message: REJECT_MESSAGES.no_garment_detected }, 502);
+  }
+
+  // --- store cutout (permanent) ---
+  const path = `${userId}/${crypto.randomUUID()}.png`;
+  const up = await supa.storage.from(BUCKET).upload(path, cutout, { contentType: 'image/png', upsert: false });
+  if (up.error) return json({ status: 'error', reason_code: 'no_garment_detected', message: 'Storage failed' }, 500);
+  const image_url = supa.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+
+  // --- persist tags ---
+  const { data, error } = await supa.from('wardrobe_item')
+    .insert({ user_id: userId, image_url, ...tagged.tags, tags_source: 'auto' })
     .select().single();
+  if (error) return json({ status: 'error', reason_code: 'no_garment_detected', message: 'Save failed' }, 500);
 
-  // 5. RETURN editable chips.
-  return json<GarmentResponse>({ status: 'ok', item: data as WardrobeItem });
+  return json({ status: 'ok', item: data as WardrobeItem });
 });
 
-// --- stubs (Wk0 spike + Wk4 impl) ---
-async function removeBackground(_img: Uint8Array): Promise<Uint8Array | null> { return new Uint8Array(); } // TODO vendor
-async function autoTag(_cutout: Uint8Array): Promise<Partial<WardrobeItem>> {
-  // TODO: category+color accuracy >=85% (ranker-critical). Fallback: fewer auto-fields if spike fails.
-  return { category: 'top', subtype: '', color_primary: '', color_hex: '#000000', formality: 3, pattern: 'solid' };
+// --- helpers ---
+function adminClient() {
+  return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);
 }
-async function storeCutout(_supa: any, _userId: string, _cutout: Uint8Array): Promise<string> { return ''; }
-
-// --- infra ---
-function adminClient() { return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!); }
-async function readMultipart(_req: Request): Promise<{ image: Uint8Array; userId: string }> { return { image: new Uint8Array(), userId: '' }; }
-function json<T>(body: T, status = 200): Response { return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }); }
+function json(body: GarmentResponse, status = 200): Response {
+  return new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
+}

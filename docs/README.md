@@ -21,7 +21,7 @@ Source of truth: [PRD-FitForm-v1.md](../PRD-FitForm-v1.md)
 ## Locked decisions (quick ref)
 1. **Verdict-led wedge** (+ blurred wardrobe teaser P0)
 2. **RN cross-platform codebase, staged launch** (iOS-first → Android FF)
-3. **Transient raw photo** (auto-purge <24h), permanent profile JSON
+3. **Raw photo never persisted** (in-memory only; supersedes transient-bucket), permanent profile JSON
 
 ## Current phase
 Execution. Wk0 spike spec + all 3 API contracts drafted. Next: run Wk0 spike, then scaffold repo (RN+Expo client, Supabase schema, Edge Function stubs).

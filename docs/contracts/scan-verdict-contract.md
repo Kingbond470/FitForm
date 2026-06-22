@@ -32,7 +32,7 @@ Auth: required (Supabase JWT)
    - still malformed -> return { status:"error", retryable:true }
 
 4. PERSIST profile JSON (style_profile table)
-   - auto-purge raw images <24h (transient bucket TTL)
+   - raw images processed in-memory only — NEVER persisted (supersedes transient-bucket plan; strongest privacy posture)
 
 5. RETURN profile JSON -> client renders card
 ```

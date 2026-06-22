@@ -28,7 +28,7 @@
 1. **Verdict-led wedge** — "Scan me" = hero, novelty budget on verdict card. Wardrobe = paid payoff.
    - + New P0 req (panel): **blurred wardrobe teaser on verdict screen** → drives paywall same session.
 2. **Platform** — RN cross-platform codebase; **staged launch: iOS-first → Android fast-follow 2–4wk** (panel amendment to original "day-1 both").
-3. **Biometric** — transient raw photo (auto-purge <24h post-process), permanent profile JSON. Trust copy on capture screen.
+3. **Biometric** — raw photo processed in-memory, NEVER persisted (impl superseded transient-bucket plan → stronger privacy). Permanent profile JSON only. Trust copy on capture screen. *Tradeoff:* no server retry/debug of bad verdicts — re-scan. Needs Reviewer/Legal bless.
 
 ## Scope
 **In (P0):** verdict scan, shareable card, lean wardrobe add (5–15), personalized combos, paywall, analytics funnel.

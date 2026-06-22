@@ -24,7 +24,7 @@ App.tsx                     v1 flow wiring
 ## Architecture rules (non-negotiable)
 - Verdict = **structured JSON**, app renders card. Model never freestyles.
 - Combos = **deterministic ranker** ([shared/ranker.ts](shared/ranker.ts)), NOT per-request LLM. Anti-repeat moat.
-- Raw scan photos transient — auto-purge <24h. Profile JSON permanent.
+- Raw scan photos processed in-memory, never persisted. Profile JSON permanent.
 - No catalog-whole-closet wall. No repeat-item suggestions.
 
 ## Setup

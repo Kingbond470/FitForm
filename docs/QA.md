@@ -46,7 +46,7 @@
 
 ## Safety test (with Design/Legal)
 - Red-team verdict for shaming/medical/harmful output across diverse inputs.
-- Biometric: confirm raw auto-purge <24h actually fires; deletion verifiable.
+- Biometric: confirm raw images are never written to storage/logs (in-memory only); inspect /scan path + DB + bucket after a scan.
 
 ## Metrics instrumentation check
 - Verify every Success Metric is computable from emitted events before launch.

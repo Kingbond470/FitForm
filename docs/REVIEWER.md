@@ -22,6 +22,8 @@
 - **Refinement: transient raw (auto-purge <24h post-process), region-gated, consented. Profile JSON permanent.**
 - Design: "photo deleted after analysis" = trust copy on capture screen.
 
+**UPDATE (impl, a546a26):** /scan went further than the transient-bucket refinement — raw images are processed **in-memory and never persisted at all**. Stronger privacy + simpler legal surface. Tradeoff: no server-side retry/debug or model-improvement from raw (re-scan instead). **NEEDS Reviewer/Legal sign-off** to confirm never-store is acceptable (it strictly reduces risk vs the approved transient plan, so expected to pass).
+
 ## Standing review gates (before ship)
 1. **Verdict safety red-team** — no shaming/medical/harmful output. Blocking ship.
 2. **Biometric legal sign-off** — consent, retention, deletion, regional. Blocking launch.
