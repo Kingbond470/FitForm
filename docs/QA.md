@@ -4,6 +4,12 @@
 
 ---
 
+## Verification snapshot (paused)
+- **Unit-tested + passing (23/23):** ranker (insufficient-gate, ≥3 distinct, determinism, anti-repeat), verdict-output validation, garment-tag validation, entitlements (free-launch open).
+- **Verified live (CLI smoke):** anon auth, `/outfits` insufficient, `/scan` cheap-gate, Photoroom bg-removal (direct 200 + RGBA cutout).
+- **Blocked until `GEMINI_API_KEY` set:** `/scan` verdict, `/garment` auto-tag (model step).
+- **Not yet verified:** client screens on device, end-to-end happy path, analytics events (R6 unbuilt), safety red-team, cross-platform matrix.
+
 ## Acceptance criteria (from PRD requirements)
 
 ### R1 — Scan → style profile

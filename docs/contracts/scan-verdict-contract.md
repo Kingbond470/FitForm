@@ -1,6 +1,6 @@
 # Contract — `/scan` Verdict Pipeline
 
-**Owner:** TL · **Reviewers:** Design (tone), Legal (safety), PM (rules) · **Status:** Draft v1
+**Owner:** TL · **Reviewers:** Design (tone), Legal (safety), PM (rules) · **Status:** Implemented (provider-agnostic vision, default Gemini). Live on Supabase; needs `GEMINI_API_KEY` to run the model step. Safety red-team still pending (blocking ship).
 
 The wedge's core. Output of this gates the verdict card (R2) AND the combo ranker (R4). Model returns **structured JSON only** — never prose, never freestyle.
 
@@ -22,10 +22,11 @@ Auth: required (Supabase JWT)
    - blur / lighting acceptable?
    FAIL -> return { status:"retake", reason_code, message } (no model call)
 
-2. VISION LLM CALL (structured output mode)
+2. VISION LLM CALL (structured output mode) — provider-agnostic
    - system prompt = styling rules + safety guardrails + schema
-   - input = both images
+   - input = both images as raw base64 (no data-URL wrapping server-side)
    - temperature low (consistency)
+   - provider via VISION_PROVIDER: default Gemini 2.0 Flash (free), OpenAI optional
 
 3. VALIDATE JSON vs schema
    - malformed -> retry once
@@ -41,7 +42,7 @@ Auth: required (Supabase JWT)
 ```json
 {
   "status": "ok",
-  "model_version": "gpt-4o-2026-xx",
+  "model_version": "gemini-2.0-flash",
   "profile": {
     "face_shape": "oval | round | square | oblong | heart | diamond | triangle",
     "body_type": "ectomorph | mesomorph | endomorph | mixed",

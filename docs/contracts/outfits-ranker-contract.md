@@ -1,6 +1,6 @@
 # Contract — `/outfits` Deterministic Ranker
 
-**Owner:** TL · **Reviewers:** PM (anti-repeat), QA (distinctness) · **Status:** Draft v1
+**Owner:** TL · **Reviewers:** PM (anti-repeat), QA (distinctness) · **Status:** Implemented + unit-tested (insufficient-gate, ≥3 distinct, determinism, anti-repeat). Live on Supabase. Entitlement seam open (FREE_LAUNCH). Color/rule heuristics done; fit/proportion rules inert (no item fit metadata — v2).
 
 Personalized combos (R4). **Deterministic rule-based scorer — NOT an LLM call.** Reads pre-tagged items + profile JSON. Fast, cheap, testable, no repeat-item drift. This is the anti-incumbent moat.
 

@@ -1,6 +1,6 @@
 # Contract — `/garment` Bg-Removal + Auto-Tag
 
-**Owner:** TL · **Reviewers:** Design (chip UX), QA (accuracy) · **Status:** Draft v1 (vendor pending Wk0 spike)
+**Owner:** TL · **Reviewers:** Design (chip UX), QA (accuracy) · **Status:** Implemented. Bg-removal = **Photoroom** (live, sandbox key). Auto-tag = provider-agnostic vision (`VISION_PROVIDER`, default Gemini). `<30s/item` bar still to validate (Wk0 Spike A unrun).
 
 Lean wardrobe add (R3). Photo in → bg-removed cutout + structured tags out. Feeds the ranker. Must hit <30s/item, ≤1-tap correction.
 

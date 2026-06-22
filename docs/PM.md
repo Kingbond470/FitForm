@@ -62,3 +62,12 @@ Revenue metrics deferred; activation/virality/retention elevated.
 ## Pending sign-off
 - Positioning string final.
 - Panel amendments: staged launch + blurred teaser (assumed yes).
+- Never-store raw biometric posture (Reviewer/Legal bless).
+- Free vision provider (Gemini) acceptable for launch quality (measure via verdict-trust metric).
+
+## Build snapshot (paused here)
+Backend **live** on Supabase; all 3 endpoints deployed. Auth/DB/ranker/Photoroom
+verified. Vision model step blocked only on a **free `GEMINI_API_KEY`** (OpenAI
+unbillable). Client flow built, not device-verified. **Not built yet:** analytics
+funnel (R6), account upgrade, image downscale, full tag-edit chips. Wk0 spike unrun.
+Full status: [README.md](README.md#build-status-snapshot). Remaining work deferred.
