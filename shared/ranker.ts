@@ -57,12 +57,23 @@ export function rankOutfits(input: RankInput): RankResult {
     .map((c) => ({ item_ids: c.map((i) => i.id), score: scoreOutfit(c, profile, occasion, recent, weights) }))
     .sort((a, b) => b.score - a.score);
 
-  // Distinctness: drop near-duplicate combos (>=2 shared items with an already-picked one).
+  // Distinctness (PRD: no item in *every* suggestion). Greedy by score:
+  //  - skip exact-duplicate combos,
+  //  - cap how many returned outfits any single item may appear in.
+  // Cap targets the real anti-pattern (same 1-2 items everywhere) without
+  // demanding near-disjoint combos, which is impossible for thin closets.
+  const maxRepeat = Math.max(2, Math.ceil(topN / 2));
+  const usage = new Map<string, number>();
+  const seen = new Set<string>();
   const picked: ScoredOutfit[] = [];
   for (const cand of scored) {
     if (picked.length >= topN) break;
-    const tooSimilar = picked.some((p) => sharedCount(p.item_ids, cand.item_ids) >= 2);
-    if (!tooSimilar) picked.push(cand);
+    const key = [...cand.item_ids].sort().join('|');
+    if (seen.has(key)) continue;
+    if (cand.item_ids.some((id) => (usage.get(id) ?? 0) >= maxRepeat)) continue;
+    picked.push(cand);
+    seen.add(key);
+    cand.item_ids.forEach((id) => usage.set(id, (usage.get(id) ?? 0) + 1));
   }
   return { status: 'ok', outfits: picked };
 }
@@ -129,7 +140,7 @@ function profileRuleMatch(outfit: WardrobeItem[], profile: StyleProfile): number
 
 function categoryCompleteness(outfit: WardrobeItem[]): number {
   const cats = new Set(outfit.map((i) => i.category));
-  const core = ['top', 'bottom', 'shoe'].every((c) => cats.has(c)) ? 1 : 0;
+  const core = (['top', 'bottom', 'shoe'] as const).every((c) => cats.has(c)) ? 1 : 0;
   const bonus = cats.has('outer') || cats.has('accessory') ? 0.2 : 0;
   return core + bonus;
 }
@@ -148,6 +159,5 @@ const NEUTRALS = new Set(['black', 'white', 'grey', 'gray', 'navy', 'beige', 'ta
 const isNeutral = (c?: string) => !!c && NEUTRALS.has(c.toLowerCase());
 function matchContrast(_i: WardrobeItem, _target: string): number { return 0.7; } // TODO: hex->contrast map (Wk0 color taxonomy)
 function itemMatchesRuleTarget(_i: WardrobeItem, _target: string, _cat: string): number | boolean { return false; } // TODO: rule->item matcher
-function sharedCount(a: string[], b: string[]): number { const s = new Set(a); return b.filter((x) => s.has(x)).length; }
 function spread(v: number[]): number { return Math.max(...v) - Math.min(...v); }
 function clamp01(n: number): number { return Math.max(0, Math.min(1, n)); }

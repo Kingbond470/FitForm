@@ -20,10 +20,14 @@ const item = (id: string, category: WardrobeItem['category'], extra: Partial<War
   formality: 3, pattern: 'solid', tags_source: 'auto', ...extra,
 });
 
+// Realistic lean wardrobe (R3 target: 5–15 items). >=2 shoes so distinct
+// combos are achievable — single-shoe closets are a known distinctness edge
+// (forced-shared item inflates overlap vs the >=2-shared threshold). Tune in P1.
 const wardrobe: WardrobeItem[] = [
   item('t1', 'top'), item('t2', 'top', { color_primary: 'white' }),
   item('b1', 'bottom'), item('b2', 'bottom', { color_primary: 'beige' }),
-  item('s1', 'shoe'), item('o1', 'outer'),
+  item('s1', 'shoe'), item('s2', 'shoe', { color_primary: 'brown', color_hex: '#5a3a22' }),
+  item('o1', 'outer'),
 ];
 
 test('insufficient when <5 items or single category', () => {

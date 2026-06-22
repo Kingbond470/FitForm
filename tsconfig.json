@@ -11,5 +11,7 @@
     "baseUrl": ".",
     "paths": { "@/*": ["src/*"], "@shared/*": ["shared/*"] }
   },
-  "include": ["src", "shared", "supabase/functions"]
+  "comment": "Edge Functions run on Deno (URL imports, Deno global) — typechecked by Deno, not this Node/RN config.",
+  "include": ["src", "shared", "App.tsx"],
+  "exclude": ["node_modules", "supabase/functions"]
 }
