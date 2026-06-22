@@ -1,6 +1,6 @@
 // Typed client for the 3 Edge Functions. All vision/ranking server-side.
 import { supabase } from '@/lib/supabase';
-import type { ScanResponse, GarmentResponse, OutfitsResponse, Occasion } from '@shared/types';
+import type { ScanResponse, GarmentResponse, OutfitsResponse, Occasion, WardrobeItem } from '@shared/types';
 
 const FN = process.env.EXPO_PUBLIC_SUPABASE_URL! + '/functions/v1';
 
@@ -31,4 +31,26 @@ export async function getOutfits(occasion?: Occasion): Promise<OutfitsResponse> 
     body: JSON.stringify({ occasion }),
   });
   return res.json();
+}
+
+// Existing wardrobe (returning user). RLS scopes rows to the signed-in user.
+export async function listWardrobe(): Promise<WardrobeItem[]> {
+  const { data, error } = await supabase
+    .from('wardrobe_item')
+    .select('*')
+    .order('created_at', { ascending: false });
+  if (error) return [];
+  return (data ?? []) as WardrobeItem[];
+}
+
+// ≤1-tap tag correction. Marks the row user-edited so re-tagging won't overwrite.
+export async function updateGarmentTag(
+  id: string,
+  patch: Partial<Pick<WardrobeItem, 'category' | 'subtype' | 'color_primary' | 'formality' | 'pattern'>>,
+): Promise<boolean> {
+  const { error } = await supabase
+    .from('wardrobe_item')
+    .update({ ...patch, tags_source: 'user-edited' })
+    .eq('id', id);
+  return !error;
 }
