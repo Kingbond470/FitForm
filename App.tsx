@@ -7,6 +7,8 @@ import VerdictScreen from '@/screens/VerdictScreen';
 import WardrobeScreen from '@/screens/WardrobeScreen';
 import OutfitsScreen from '@/screens/OutfitsScreen';
 import { ensureSession } from '@/lib/auth';
+import { track } from '@/lib/analytics';
+import { EVENTS } from '@shared/analytics';
 import type { StyleProfile, WardrobeItem } from '@shared/types';
 
 type Route = 'scan' | 'verdict' | 'wardrobe' | 'outfits';
@@ -16,8 +18,8 @@ export default function App() {
   const [profile, setProfile] = useState<StyleProfile | null>(null);
   const [items, setItems] = useState<WardrobeItem[]>([]); // lifted: shared by wardrobe + outfits
 
-  // Invisible anon session before anything hits an authed endpoint.
-  useEffect(() => { ensureSession(); }, []);
+  // Invisible anon session before anything hits an authed endpoint, then log open.
+  useEffect(() => { ensureSession().then(() => track(EVENTS.APP_OPEN)); }, []);
 
   return (
     <SafeAreaView style={{ flex: 1 }}>

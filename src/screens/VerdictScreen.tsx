@@ -6,6 +6,8 @@ import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
 import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
 import ShareCard from '@/components/ShareCard';
+import { track } from '@/lib/analytics';
+import { EVENTS } from '@shared/analytics';
 import { SHARE_DIALOG_TITLE } from '@shared/share';
 import type { StyleProfile } from '@shared/types';
 
@@ -20,6 +22,7 @@ export default function VerdictScreen({ profile, onUnlockWardrobe }: Props) {
       const uri = await captureRef(cardRef, { format: 'png', quality: 1 });
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: SHARE_DIALOG_TITLE });
+        track(EVENTS.VERDICT_SHARE);
       }
     } catch {
       // capture/share failed (e.g. permission/cancel) — no-op, user can retry.

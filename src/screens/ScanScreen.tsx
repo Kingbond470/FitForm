@@ -4,6 +4,8 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, StyleSheet, ActivityIndicator } from 'react-native';
 import { scan } from '@/api/client';
+import { track } from '@/lib/analytics';
+import { EVENTS } from '@shared/analytics';
 import CaptureFlow from '@/screens/CaptureFlow';
 import type { ScanResponse } from '@shared/types';
 
@@ -17,8 +19,9 @@ export default function ScanScreen({ onVerdict }: Props) {
   async function analyze(faceUri: string, bodyUri: string) {
     setPhase('analyzing'); setRetake(null);
     const r = await scan(faceUri, bodyUri);
-    if (r.status === 'ok') { onVerdict(r); return; }
+    if (r.status === 'ok') { track(EVENTS.SCAN_COMPLETE); onVerdict(r); return; }
     setPhase('idle');
+    if (r.status === 'retake') track(EVENTS.SCAN_RETAKE, { reason: r.reason_code });
     setRetake(r.status === 'retake' ? r.message : 'Something went wrong. Try again.');
   }
 
@@ -29,7 +32,7 @@ export default function ScanScreen({ onVerdict }: Props) {
   return (
     <View style={styles.c}>
       <Text style={styles.h}>What suits you</Text>
-      <Pressable style={styles.cta} onPress={() => setPhase('capturing')} disabled={phase === 'analyzing'}>
+      <Pressable style={styles.cta} onPress={() => { track(EVENTS.SCAN_START); setPhase('capturing'); }} disabled={phase === 'analyzing'}>
         {phase === 'analyzing' ? <ActivityIndicator color="#fff" /> : <Text style={styles.ctaT}>Scan me</Text>}
       </Pressable>
       {phase === 'analyzing' && <Text style={styles.muted}>Reading your features…</Text>}

@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { addGarment, listWardrobe, updateGarmentTag } from '@/api/client';
+import { track } from '@/lib/analytics';
+import { EVENTS } from '@shared/analytics';
 import type { WardrobeItem, ItemCategory } from '@shared/types';
 
 const OUTFIT_THRESHOLD = 5;
@@ -29,7 +31,7 @@ export default function WardrobeScreen({ items, onItemsChange, onSeeOutfits }: P
 
     const r = await addGarment(uri);
     setPending((p) => p.filter((x) => x.key !== key));
-    if (r.status === 'ok') onItemsChange([r.item, ...items]);
+    if (r.status === 'ok') { onItemsChange([r.item, ...items]); track(EVENTS.ITEM_ADD, { category: r.item.category }); }
     else setError(r.message);
   }
 

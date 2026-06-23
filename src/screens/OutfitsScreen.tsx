@@ -4,6 +4,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, StyleSheet, FlatList, Image, ActivityIndicator } from 'react-native';
 import { getOutfits } from '@/api/client';
+import { track } from '@/lib/analytics';
+import { EVENTS } from '@shared/analytics';
 import type { WardrobeItem, Outfit, OutfitsResponse } from '@shared/types';
 
 type Props = { items: WardrobeItem[]; onBack: () => void };
@@ -12,7 +14,13 @@ export default function OutfitsScreen({ items, onBack }: Props) {
   const [state, setState] = useState<OutfitsResponse | null>(null);
   const byId = new Map(items.map((i) => [i.id, i]));
 
-  useEffect(() => { getOutfits().then(setState); }, []);
+  useEffect(() => {
+    getOutfits().then((r) => {
+      setState(r);
+      track(r.status === 'ok' ? EVENTS.OUTFIT_GENERATED : EVENTS.OUTFIT_INSUFFICIENT,
+        r.status === 'ok' ? { count: r.outfits.length } : {});
+    });
+  }, []);
 
   if (!state) return <Center><ActivityIndicator /><Text style={styles.muted}>Building your outfits…</Text></Center>;
 
