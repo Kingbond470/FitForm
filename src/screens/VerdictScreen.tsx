@@ -1,18 +1,29 @@
 // Verdict card — the viral artifact. Rating-card format, branding baked into export.
 // Share render == screenshot render. Wardrobe teaser (P0) pulls into the payoff —
 // FREE during v1 launch (no paywall); see shared/entitlements.ts.
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
+import { captureRef } from 'react-native-view-shot';
 import * as Sharing from 'expo-sharing';
+import ShareCard from '@/components/ShareCard';
+import { SHARE_DIALOG_TITLE } from '@shared/share';
 import type { StyleProfile } from '@shared/types';
 
 type Props = { profile: StyleProfile; onUnlockWardrobe: () => void };
 
 export default function VerdictScreen({ profile, onUnlockWardrobe }: Props) {
+  const cardRef = useRef<View>(null);
+
   async function onShare() {
-    // TODO: render card View -> capture to image (react-native-view-shot) w/ baked branding -> share.
-    const uri = ''; // captured card image
-    if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(uri);
+    try {
+      // Capture the off-screen export card (branding baked in) -> share sheet.
+      const uri = await captureRef(cardRef, { format: 'png', quality: 1 });
+      if (await Sharing.isAvailableAsync()) {
+        await Sharing.shareAsync(uri, { mimeType: 'image/png', dialogTitle: SHARE_DIALOG_TITLE });
+      }
+    } catch {
+      // capture/share failed (e.g. permission/cancel) — no-op, user can retry.
+    }
   }
 
   return (
@@ -40,6 +51,11 @@ export default function VerdictScreen({ profile, onUnlockWardrobe }: Props) {
         <Text style={styles.teaserT}>Build outfits from your closet →</Text>
         <Text style={styles.teaserSub}>Combinations made for your look — free</Text>
       </Pressable>
+
+      {/* Off-screen export card — what actually gets captured + shared. */}
+      <View style={styles.offscreen} pointerEvents="none">
+        <ShareCard ref={cardRef} profile={profile} />
+      </View>
     </ScrollView>
   );
 }
@@ -58,4 +74,5 @@ const styles = StyleSheet.create({
   teaser: { borderWidth: 1, borderColor: '#ddd', borderRadius: 16, padding: 18, gap: 4 },
   teaserT: { fontWeight: '700', fontSize: 16 },
   teaserSub: { color: '#888' },
+  offscreen: { position: 'absolute', left: -10000, top: 0 },
 });
