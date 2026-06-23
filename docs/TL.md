@@ -68,3 +68,31 @@ CLIENT (RN+Expo) --HTTPS--> SERVER (Edge Fns)
 - IAP via RevenueCat (both stores).
 - Camera/guided-capture + bg-removal SDK: verify Android parity in Wk0 spike.
 - Android low-end device perf test (vision upload + render).
+
+## Implemented since solutioning
+
+**R2 share export.** Dedicated off-screen `ShareCard` (fixed canvas, branding baked
+INTO the composition, not a croppable edge bar) → `react-native-view-shot` `captureRef`
+→ `expo-sharing`. Kept separate from the on-screen card so export never diverges from
+display. Pure helpers (`shared/share.ts`) unit-tested.
+
+**R6 analytics.** Own-backend, no third-party SDK. `analytics_event` (event/props/user_id),
+insert-only RLS, queried via service role. `shared/analytics.ts` = event vocab + ordered
+FUNNEL. `src/lib/analytics.ts` `track()` = fire-and-forget, off the critical path.
+Instrumented across App/Scan/Verdict/Wardrobe/Outfits. Attribution SDK deferred (app_open
+= install proxy).
+
+## Infra learning — auth keys + RLS (important)
+Project uses **ES256 (asymmetric) JWT signing**. Consequences, learned by debugging
+live 403s:
+- **Client must use the publishable key** (`sb_publishable_…`), NOT the legacy anon JWT.
+  With the legacy key PostgREST does not resolve `auth.uid()` in RLS → every client-direct
+  write fails. Masked at first because Edge Functions use service-role (bypass RLS).
+- **Send `user_id` explicitly** on inserts; the DB `default auth.uid()` resolves null in
+  default-context (works inside RLS predicates, not as a column default).
+- Edge Functions: `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` auto-inject; auth via
+  `getUser(token)`.
+
+## Migrations applied (live)
+`0001_init` (style_profile/wardrobe_item/outfit + RLS) · `0002_storage` (wardrobe bucket) ·
+`0003_analytics` (analytics_event + RLS).

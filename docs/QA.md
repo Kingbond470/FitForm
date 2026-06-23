@@ -4,12 +4,14 @@
 
 ---
 
-## Verification snapshot (paused)
-- **Unit-tested + passing (26/26):** ranker (insufficient-gate, ≥3 distinct, determinism, anti-repeat), verdict-output validation, garment-tag validation, entitlements (free-launch open), share helpers (export name/caption/canvas).
-- **R2 share export built:** dedicated off-screen `ShareCard` (branding baked in) → `react-native-view-shot` capture → `expo-sharing`. Device-verify the captured image on iOS + Android (view-shot parity).
-- **Verified live (CLI smoke):** anon auth, `/outfits` insufficient, `/scan` cheap-gate, Photoroom bg-removal (direct 200 + RGBA cutout).
+## Verification snapshot
+- **Unit-tested + passing (29/29):** ranker (insufficient-gate, ≥3 distinct, determinism, anti-repeat), verdict-output validation, garment-tag validation, entitlements (free-launch open), share helpers (export name/caption/canvas), analytics (funnel order/vocab).
+- **Verified live (CLI smoke):** anon auth, `/outfits` insufficient, `/scan` cheap-gate, Photoroom bg-removal (direct 200 + RGBA cutout), **analytics + wardrobe inserts (201) after the publishable-key fix**.
+- **R2 share export built:** off-screen `ShareCard` → view-shot → `expo-sharing`. Device-verify captured image on iOS + Android (view-shot parity, font-ready timing).
+- **R6 analytics built + verified:** events insert under RLS; junk test rows cleaned.
+- **Regression caught:** legacy anon key → RLS `auth.uid()` null → client-direct writes 403 (also broke listWardrobe/updateGarmentTag). Fixed via publishable key. **Re-test on device that returning-user wardrobe load + tag edit now work.**
 - **Blocked until `GEMINI_API_KEY` set:** `/scan` verdict, `/garment` auto-tag (model step).
-- **Not yet verified:** client screens on device, end-to-end happy path, analytics events (R6 unbuilt), safety red-team, cross-platform matrix.
+- **Not yet verified:** client screens on device, end-to-end happy path, safety red-team, cross-platform matrix.
 
 ## Acceptance criteria (from PRD requirements)
 

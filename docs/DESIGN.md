@@ -16,12 +16,17 @@
 - Guided capture: face silhouette overlay + body frame overlay → prevents bad photos at source.
 - Capture screen trust copy: "Your photo is deleted after analysis."
 
-### 2. Verdict card (the viral artifact)
+### 2. Verdict card (the viral artifact) — IMPLEMENTED (R2)
 - Rating-card format (FIFA/Madden style — proven to travel).
 - Branding + app handle **baked into image bitmap** — cannot crop out trivially.
 - Share render == screenshot render (identical).
 - 1-tap → native share sheet (TikTok/IG/iMessage).
-- **Blurred wardrobe teaser on this screen** (P0, panel add) → seed paywall desire same session.
+- Wardrobe teaser on this screen (P0) → pull into the payoff (free in v1, no paywall).
+- **Build note:** a *dedicated* export card (`ShareCard`, fixed canvas) is rendered
+  off-screen and captured (view-shot) — separate from the responsive on-screen card so
+  "looks right on screen" can't diverge from "looks right in the export". Branding sits
+  mid-composition (wordmark + handle), not an edge bar, so a crop can't remove it.
+- **To validate on device:** font-ready timing before capture; iOS+Android view-shot parity.
 
 ### 3. Wardrobe add
 - Must FEEL un-chore-like, or we became the incumbent.

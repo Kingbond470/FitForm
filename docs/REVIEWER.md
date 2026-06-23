@@ -31,13 +31,22 @@
 - Premium later = additive (v2), never claw back v1 free features.
 - **R5 acceptance (paywall) DEFERRED** — re-instate when monetization turns on.
 
+## Progress review (built since panel)
+- **R2 shareable card export — DONE.** Branding baked mid-composition (non-croppable);
+  off-screen export card separate from on-screen. Acceptance met in code; device-verify pending.
+- **R6 funnel analytics — DONE + verified.** Own-backend, instrumented end-to-end; every
+  leading metric (activation/share/wardrobe-activation) computable. Attribution SDK deferred.
+- **Infra regression caught + fixed.** Legacy anon key broke RLS `auth.uid()` under ES256
+  signing → client writes 403. Switched to publishable key. **Gate added below.**
+
 ## Standing review gates (before ship)
-1. **Verdict safety red-team** — no shaming/medical/harmful output. Blocking ship.
+1. **Verdict safety red-team** — no shaming/medical/harmful output. Blocking ship. *(still open)*
 2. **Biometric legal sign-off** — consent, retention, deletion, regional. Blocking launch.
-3. **Verdict JSON contract review** — schema strict, validated, ranker reads JSON not prose.
-4. **Auto-tag spike result** — confirms <30s/item bar or triggers fallback.
-5. **Analytics completeness** — every success metric computable from events.
-6. **Unit economics** — multimodal cost/scan sustainable vs ~$30/yr pricing.
+3. **Verdict JSON contract review** — schema strict, validated, ranker reads JSON not prose. ✓ (validators tested)
+4. **Auto-tag spike result** — confirms <30s/item bar or triggers fallback. *(Wk0 unrun)*
+5. **Analytics completeness** — every success metric computable from events. ✓ (R6 done)
+6. **Unit economics** — vision cost/scan sustainable. Now **$0** on Gemini free tier for validation.
+7. **Auth-key correctness** — client uses publishable key so RLS works on device. Verify on device.
 
 ## Open items needing PM sign-off
 - Positioning string final ("What suits you").

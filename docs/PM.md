@@ -65,9 +65,12 @@ Revenue metrics deferred; activation/virality/retention elevated.
 - Never-store raw biometric posture (Reviewer/Legal bless).
 - Free vision provider (Gemini) acceptable for launch quality (measure via verdict-trust metric).
 
-## Build snapshot (paused here)
-Backend **live** on Supabase; all 3 endpoints deployed. Auth/DB/ranker/Photoroom
-verified. Vision model step blocked only on a **free `GEMINI_API_KEY`** (OpenAI
-unbillable). Client flow built, not device-verified. **Not built yet:** analytics
-funnel (R6), account upgrade, image downscale, full tag-edit chips. Wk0 spike unrun.
-Full status: [README.md](README.md#build-status-snapshot). Remaining work deferred.
+## Build snapshot
+Backend **live** on Supabase; all 3 endpoints deployed. Auth/DB/ranker/Photoroom verified.
+**R2 shareable card export — built** (the acquisition mechanism now works). **R6 funnel
+analytics — built + verified live** (activation/share/wardrobe-activation all measurable).
+Vision model step blocked only on a **free `GEMINI_API_KEY`** (OpenAI unbillable → Gemini).
+Client flow built, not device-verified. **Not built yet (P1):** account upgrade, image
+downscale, full tag-edit chips, occasion filter, feedback loop. Safety red-team still
+required before ship. Wk0 spike unrun.
+Full status: [README.md](README.md#build-status-snapshot).

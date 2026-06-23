@@ -124,8 +124,17 @@ v1 is **free** (no paywall). Monetization is deferred behind a flag — see deci
 | `style_profile` | Derived verdict (permanent asset) | face/body/proportions/color_season/coloring/rules (jsonb); **no raw photo** |
 | `wardrobe_item` | Tagged garment, feeds the ranker | bg-removed cutout URL + category/color/formality/pattern |
 | `outfit` | Generated combo (persisted for share + anti-repeat) | item_ids[], occasion, score, profile_version |
+| `analytics_event` | Funnel events (R6) | event/props/user_id; insert-only RLS; queried via service role |
 
 All tables are RLS-scoped to the signed-in user.
+
+### Auth + RLS note (learned in build)
+
+The project uses **ES256 (asymmetric) JWT signing**. The client must use the
+**publishable key** (`sb_publishable_…`), *not* the legacy anon JWT — under ES256,
+PostgREST only resolves `auth.uid()` in RLS with the publishable key. Inserts also
+send `user_id` explicitly (the DB `default auth.uid()` resolves null in default-context).
+Edge Functions authenticate via `getUser()` and write with the service role.
 
 ---
 
@@ -172,10 +181,10 @@ Goals (v1): activation (install→verdict) 60% · share rate 20% · verdict trus
 ```
 PRD-FitForm-v1.md           product spec (source of truth)
 docs/                       role docs (PM/Design/TL/QA/Reviewer) + contracts + spike
-shared/                     contract types + deterministic ranker + vision validators (+ tests)
-src/                        RN client — lib (supabase, auth), api, screens
+shared/                     contract types + ranker + vision/share/analytics helpers (+ tests)
+src/                        RN client — lib (supabase, auth, analytics), api, components, screens
 supabase/
-  migrations/               schema + storage bucket
+  migrations/               schema + storage bucket + analytics
   functions/scan|garment|outfits   Edge Functions (+ _shared vision/verdict/garment layers)
 App.tsx                     v1 flow wiring
 ```
@@ -193,16 +202,20 @@ Supabase project **fitform** (`snuajzyiktqnzqsfdjvr`, ap-south-1) — provisione
 | `/scan` quality gate + pipeline | live (gate verified) |
 | `/garment` Photoroom bg-removal | live + verified |
 | Vision model step (verdict + tagging) | code live; **needs a free `GEMINI_API_KEY`** |
+| R2 shareable verdict card export | built (off-screen capture → share sheet); device-verify pending |
+| R6 funnel analytics | built + verified live |
 | Client screens + guided capture + anon auth | built, not device-verified |
-| Analytics funnel (R6) | not built |
 
-23/23 unit tests pass; `tsc` clean. Edge Functions typechecked at deploy.
+**29/29** unit tests pass; `tsc` clean. Edge Functions typechecked at deploy.
+Migrations applied: `0001_init` · `0002_storage` · `0003_analytics`.
 
 ## Setup
 
 Supabase prerequisites: enable **Anonymous sign-ins** (Auth → Providers), apply migrations
-(creates the `wardrobe` bucket), set function secrets (`GEMINI_API_KEY`, `PHOTOROOM_API_KEY`).
-Get a free Gemini key (no billing) at https://aistudio.google.com/apikey.
+(creates the `wardrobe` bucket + analytics), set function secrets (`GEMINI_API_KEY`,
+`PHOTOROOM_API_KEY`). The client `.env` must use the **publishable key** (`sb_publishable_…`),
+not the legacy anon JWT (see Auth + RLS note). Get a free Gemini key (no billing) at
+https://aistudio.google.com/apikey.
 
 ```bash
 cp .env.example .env        # fill keys
